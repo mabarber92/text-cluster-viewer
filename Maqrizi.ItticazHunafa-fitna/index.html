@@ -206,6 +206,7 @@
                     htmlContainer.innerHTML = selectedMs[0].text;
                     
                     let titleHtmlContainer = document.getElementById(titleContainer);
+                    titleHtmlContainer.innerHTML = ""
                     let header = document.createElement("h5");
                     let headerText = document.createTextNode(msId);
                     header.appendChild(headerText);
