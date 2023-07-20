@@ -183,7 +183,7 @@ def create_cluster_jsons(cluster_path, meta_path, main_book_uri, corpus_base_pat
     print(end_ms)
 
     for i in tqdm(range(start_ms, end_ms, ms_per_json)):
-        cluster_json_path = "{}_{}_clusters.json".format(i, i+ms_per_json)
+        cluster_json_path = "./{}_{}_clusters.json".format(i, i+ms_per_json)
         clusters_out = []
         for x in range(i, i+ms_per_json):
             
