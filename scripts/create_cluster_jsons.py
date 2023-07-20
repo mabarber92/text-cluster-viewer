@@ -56,6 +56,7 @@ def tag_ms(clusters, ms_section, safe_tags="###\s\|+\s|\n#\s|###\s\|+\s|PageV\d+
         mapping_dict = []
         for cluster in clusters:
             
+            
             mapping_dict.append({"cluster": cluster["cluster"], "type" : " @clb@" + str(cluster["size"]) + "@", "index" : cluster["begin"]})
             mapping_dict.append({"cluster": cluster["cluster"], "type" : " @cle@", "index" : cluster["end"]})
             
@@ -104,6 +105,7 @@ def create_ms_slice(current_ms, zfill_count, text, ms_spread = [1,1]):
     updated_slice = []
     for slice in slice_list:
         updated_slice.append(str(slice).zfill(zfill_count))
+
     regex = r"ms{}.*ms{}".format(updated_slice[0], updated_slice[1])
 
     slice = re.findall(regex, text, flags=re.DOTALL)
@@ -114,7 +116,7 @@ def create_ms_slice(current_ms, zfill_count, text, ms_spread = [1,1]):
             new_regex = r"End#.*ms{}".format(updated_slice[1])
             slice = re.findall(new_regex, text, flags=re.DOTALL)
             if len(slice) == 0:
-                print("writing error")
+                print("function create_ms_slice : writing error")
                 returned = "Corresponding MS not found"
             else:
                 returned = slice[0]
@@ -124,15 +126,19 @@ def create_ms_slice(current_ms, zfill_count, text, ms_spread = [1,1]):
         returned = slice[0]
     return returned
 
-def mARkdown_to_html(text):
+def mARkdown_to_html(text, mark_cls = True):
     # Wrap all headers with one header type    
-    text = re.sub(r"###\s[$|]+(.*)\n", r"<h4 class=scrollDiv><mark class='markHead'>\1</mark></h4>", text)
+    text = re.sub(r"###\s[$|]+(.*)\n", r"<h4 class=markdownHeader><mark class='markHead'>\1</mark></h4>", text)
     # Replace # with <br>
     text = re.sub(r"#\s", "<br>",text)
     # Add highlighting to milestone markers
     text = re.sub(r"(ms\d+)", r"<mark class='ms'>\1</mark>", text)
     # Add highlighting to page markers
-    text = re.sub(r"(PageV\d+P\d+)", r"<mark class='pageno'>\1</mark>", text)
+    text = re.sub(r"(PageV\d+P\d+)", r"<mark class='pageno'> \1 </mark>", text)
+    # If mark_cls is true - highlight the cluster markers
+    if mark_cls:
+        text = re.sub(r"(@clb@\d?@?\d+@)", r"<mark class='clusterStart'>\1</mark>", text)
+        text = re.sub(r"(@cle@\d?@?\d+@)", r"<mark class='clusterEnd'>\1</mark>", text)
     # return the text
     return text
 
@@ -159,7 +165,7 @@ def create_cluster_jsons(cluster_path, meta_path, main_book_uri, corpus_base_pat
         main_text = f.read()
     
     # Get the milestone count and z-fill for main text
-    ms_list = re.findall(r"ms\d+", main_text)
+    ms_list = re.findall(r"ms(\d+)", main_text)
     ms_count = len(ms_list)
     zfill_len_main = len(ms_list[0])
 
@@ -176,7 +182,7 @@ def create_cluster_jsons(cluster_path, meta_path, main_book_uri, corpus_base_pat
     print(start_ms)
     print(end_ms)
 
-    for i in tqdm(range(start_ms, end_ms, , ms_per_json)):
+    for i in tqdm(range(start_ms, end_ms, ms_per_json)):
         cluster_json_path = "{}_{}_clusters.json".format(i, i+ms_per_json)
         clusters_out = []
         for x in range(i, i+ms_per_json):
@@ -190,55 +196,48 @@ def create_cluster_jsons(cluster_path, meta_path, main_book_uri, corpus_base_pat
 
             # Loop through clusters and create that part of the output file
             clusters_for_ms = []
-            clusters_for_out = []
+            # clusters_for_out = []
             for cluster in filtered_clusters:
-                ms_list = cluster_df[cluster_df["cluster"] == cluster["cluster"]][["seq", "book"]].to_dict("records")
+                ms_list = cluster_df[cluster_df["cluster"] == cluster["cluster"]].to_dict("records")
 
                 cluster_ms_text = []
                 for cluster_ms in ms_list:
                     comp_text_path = meta_df[meta_df["book"] == cluster_ms["book"]]["rel_path"].to_list()[0]
-                    with open(comp_text_path, encoding=utf-8-sig) as f:
+                    with open(comp_text_path, encoding='utf-8-sig') as f:
                         comp_text = f.read()
-                    zfill_comp = len(re.findall(r"ms/d+", comp_text)[0])
+                    zfill_comp = len(re.findall(r"ms(\d+)", comp_text)[0])
                     comp_ms_text = create_ms_slice(cluster_ms["seq"], zfill_comp, comp_text, ms_spread=[0,0])
                     comp_ms_text = tag_ms(cluster_ms, comp_ms_text)
                     comp_ms_text = mARkdown_to_html(comp_ms_text)
-                    clusters_ms_text.append({"ms-id": cluster_ms["book"] + "-" + str(cluster_ms["seq"]), "text": comp_ms_text})
+                    cluster_ms_text.append({"ms_id": cluster_ms["book"] + "-" + str(cluster_ms["seq"]), "text": comp_ms_text})
                 
-                clusters_for_out.append({"cl-id": cluster, "texts": cluster_ms_text})
-                clusters_for_ms.append({"cl-id": cluster, "ms_count": len(cluster_ms)})
+                clusters_out.append({"cl_id": cluster["cluster"], "texts": cluster_ms_text})
+                clusters_for_ms.append({"cl_id": cluster["cluster"], "ms_count": len(ms_list)})
             
             ms_dict = {"ms": x, 
                         "text": ms_text,
                         "cls_count": len(filtered_clusters),
                         "cls": clusters_for_ms,
-                        "cl-json": cluster_json_path
+                        "cl_json": cluster_json_path
                         }
             
             main_ms_list.append(ms_dict)
 
-            clusters_dict = {"ms": x,
-                            "cls": clusters_for_out}
-            clusters_out.append(clusters_dict)
+            # clusters_dict = {"ms": x,
+            #                 "cls": clusters_for_out}
+            # clusters_out.append(clusters_dict)
         
         json_path = os.path.join(output_path, cluster_json_path)
         with open(json_path, "w", encoding="utf-8-sig") as f:
             f.write(json.dumps(clusters_out, indent=1))
     
-    main_json_path = os.path.join(output_path, "{}-clusters.json".format(main_book_uri))
+    main_json_path = os.path.join(output_path, "index.json")
     with open(main_json_path, "w", encoding="utf-8-sig") as f:
             f.write(json.dumps(main_ms_list, indent=1))
                 
 
 
 
-if __name__ == "__main__":
-    corpus_base_path = "E:/OpenITI Corpus/latest_corpus_02_21/"
-    meta_path = "E:/Corpus Stats/2021/OpenITI_metadata_2021-2-5.csv"
-    cluster_path = "E:/Corpus Stats/2021/Cluster data/Oct_2021/parquet"
-    output_path = "../output-test/"
-    main_text = "0845Maqrizi.ItticazHunafa"
 
-    create_cluster_jsons(cluster_path, meta_path, main_text, corpus_base_path, output_path, start_ms=360, end_ms=394)
 
 
