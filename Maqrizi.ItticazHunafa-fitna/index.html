@@ -27,19 +27,33 @@
     <body>
         
         <!-- Script for taking whats in the dropdown and reading files to populate the right box-->
-        <script type="module">
+         <!-- Script for taking whats in the dropdown and reading files to populate the right box-->
+         <script type="module">
             //Fetch data from the index
-            import data from "./index.json" assert { type: 'json' };            
+            // import data from "./index.json" assert { type: 'json' };            
 
     
             //Create the sidebar html
             let sideBarLinks = buildMsContents()
 
 
-            //On page load set the currentMs as first ms or  into the box
+            //On page load - load the main json and run tasks
             window.onload = (event) => {
                 let queryString = window.location.search.split("?=ms")[1];
+                let dataPath = "./index.json"
+                get(dataPath).then(function(response) {
+                    var mainData = JSON.parse(response);
+                    buildOnPageLoad(queryString, mainData);
+                });
+
+                // Use the pre-prepocessed content-page html to populate the sidebar
+                let sideBar = document.getElementById("ms-contents-page")
+                sideBar.appendChild(sideBarLinks)
                 
+                };
+            
+            // Set the currentMs as first ms or  into the box
+            function buildOnPageLoad (queryString, data) {
                 if (queryString === undefined) {
                     let params = new URLSearchParams(window.location.search);
                     params.set('', `ms${data[0].ms}`);
@@ -58,20 +72,20 @@
                     window.location.search = params;
                     let queryString = window.location.search.split("?=ms")[1];
                 } else {
-                    fillMsBoxes(msData[0]);
+                    fillMsBoxes(msData[0], data);
                 };
 
-                // Use the pre-prepocessed content-page html to populate the sidebar
-                let sideBar = document.getElementById("ms-contents-page")
-                sideBar.appendChild(sideBarLinks)
-                
-                };
+            }
             
             
             //Function to create the contents page
             function buildMsContents () {        
                 let contentsBox = document.createElement("div");
-                data.forEach(msEntry => {
+                let dataPath = "./index.json";
+
+                get(dataPath).then(function(response) {
+                    var data = JSON.parse(response);
+                    data.forEach(msEntry => {
                     let msListItem = document.createElement("li");
                     let linkText = `ms${msEntry.ms} - ${msEntry.cls_count} Clusters`;
                     let linkHref = `?=ms${msEntry.ms}`;
@@ -81,12 +95,16 @@
                     link.appendChild(linkText);
                     msListItem.appendChild(link);
                     contentsBox.appendChild(msListItem);
+                    });
+
                 });
+
+                
                 return contentsBox
             }
 
             //Function to set text as content of box - takes just the text
-            function fillMsBoxes(msData) {
+            function fillMsBoxes(msData, data) {
                 
                 let msBox = document.getElementById('ms-container');    
                 msBox.innerHTML = msData.text;
@@ -109,6 +127,7 @@
                                    
                     clusterOptions.appendChild(optionHtml);
                 };
+                
                 
                 let nextMs = msData.ms + 1;
                 let nextMsData = data.filter(
