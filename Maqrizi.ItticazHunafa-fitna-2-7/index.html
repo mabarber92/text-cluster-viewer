@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+
+<!-- 
+    This template parses a series of json files to allow the user to browse the clusters
+-->
+
+<html>
+    <head>
+        <title>Viewer for evaluating outputs</title>
+
+        <!-- Use bootstrap for easy grid layout-->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css" integrity="sha512-ZnR2wlLbSbr8/c9AgLg3jQPAattCUImNsae6NHYnS9KrIwRdcY9DxFotXhNAKIKbAXlRnujIqUWoXXwqyFOeIQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+        <!-- CDN of mark.js -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js"
+        integrity=
+    "sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww=="
+        crossorigin="anonymous"></script>
+        
+        <!-- Import custom styles-->
+        <link rel="stylesheet" href="assets/main-styles.css"/>
+
+        
+    </head>
+
+    <body>
+        
+        <!-- Script for taking whats in the dropdown and reading files to populate the right box-->
+        <script type="module">
+            //Fetch data from the index
+            // import data from "./index.json" assert { type: 'json' };            
+
+    
+            //Create the sidebar html
+            let sideBarLinks = buildMsContents()
+
+
+            //On page load - load the main json and run tasks
+            window.onload = (event) => {
+                let queryString = window.location.search.split("?=ms")[1];
+                let dataPath = "./index.json"
+                get(dataPath).then(function(response) {
+                    var mainData = JSON.parse(response);
+                    buildOnPageLoad(queryString, mainData);
+                });
+
+                // Use the pre-prepocessed content-page html to populate the sidebar
+                let sideBar = document.getElementById("ms-contents-page")
+                sideBar.appendChild(sideBarLinks)
+                
+                };
+            
+            // Set the currentMs as first ms or  into the box
+            function buildOnPageLoad (queryString, data) {
+                if (queryString === undefined) {
+                    let params = new URLSearchParams(window.location.search);
+                    params.set('', `ms${data[0].ms}`);
+                    window.location.search = params;
+                    let queryString = window.location.search.split("?=ms")[1];
+                    
+                };
+                
+                let msData = data.filter(
+                    function(data) {return data.ms == queryString}
+                );
+                if (msData[0] === undefined) {
+                    // Consider adding error message before defaulting to first available page
+                    let params = new URLSearchParams(window.location.search);
+                    params.set('', `ms${data[0].ms}`);
+                    window.location.search = params;
+                    let queryString = window.location.search.split("?=ms")[1];
+                } else {
+                    fillMsBoxes(msData[0], data);
+                };
+
+            }
+            
+            
+            //Function to create the contents page
+            function buildMsContents () {        
+                let contentsBox = document.createElement("div");
+                let dataPath = "./index.json";
+
+                get(dataPath).then(function(response) {
+                    var data = JSON.parse(response);
+                    data.forEach(msEntry => {
+                    let msListItem = document.createElement("li");
+                    let linkText = `ms${msEntry.ms} - ${msEntry.cls_count} Clusters`;
+                    let linkHref = `?=ms${msEntry.ms}`;
+                    let link = document.createElement("a");
+                    link.href = linkHref;
+                    linkText = document.createTextNode(linkText);
+                    link.appendChild(linkText);
+                    msListItem.appendChild(link);
+                    contentsBox.appendChild(msListItem);
+                    });
+
+                });
+
+                
+                return contentsBox
+            }
+
+            //Function to set text as content of box - takes just the text
+            function fillMsBoxes(msData, data) {
+                
+                let msBox = document.getElementById('ms-container');    
+                msBox.innerHTML = msData.text;
+
+                let msName = document.getElementById('ms-no');
+                msName.innerHTML = `ms${msData.ms}`;
+
+                let clusterCountBox = document.getElementById('cluster-count');
+                clusterCountBox.innerHTML = `Number of Clusters: ${msData.cls_count}`
+
+                let clusterOptions = document.getElementById('cluster-selector');
+                clusterOptions.innerHTML = "";
+                for (let i=0; i < msData.cls.length; i++) {
+                    let clusterData = msData.cls[i];
+                    
+                    let optionHtml = document.createElement("option")
+                    optionHtml.value = `./${msData.cl_json}-${clusterData.cl_id}`;
+                    let optionText = document.createTextNode(`${clusterData.cl_id}-(${clusterData.ms_count} ms)`)
+                    optionHtml.appendChild(optionText)
+                                   
+                    clusterOptions.appendChild(optionHtml);
+                };
+                
+                
+                let nextMs = msData.ms + 1;
+                let nextMsData = data.filter(
+                    function(data) {return data.ms == nextMs});
+                
+                let prevMs = msData.ms - 1;
+                let prevMsData = data.filter(
+                function(data) {return data.ms == prevMs});
+
+                if (nextMsData.length === 1) {                    
+                    let nextButton = document.getElementById('next-button');
+                    nextButton.href = `?=ms${nextMs}`;
+                };
+
+                if (prevMsData.length === 1) {
+                    
+                    let backButton = document.getElementById('back-button');
+                    backButton.href = `?=ms${prevMs}`;
+                };
+                
+
+               
+            };
+            
+ 
+
+            // Function handling a cluster selection
+            let clusterSelector = document.getElementById('cluster-selector')
+            
+            clusterSelector.onchange = (event) => {                
+                console.log(event)
+                handleSelection()
+            };
+
+            function handleSelection() {    
+                const selected = document.querySelectorAll('#cluster-selector option:checked')
+                const multiSelect = Array.from(selected).map(el => el.value);
+                let booksContainer = document.getElementById("cl-book-list");
+                let containOption1 = document.getElementById("pairs-dropdown-1")
+                let containOption2 = document.getElementById("pairs-dropdown-2")
+                booksContainer.innerHTML = ""
+                containOption1.innerHTML = "<option>choose a book</option>"
+                containOption2.innerHTML = "<option>choose a book</option>"
+
+                multiSelect.forEach( clusterItem => {
+                    let selectedValue = clusterItem.split("-");
+                    let cluster = Number(selectedValue[1]);
+                    let jsonFile = selectedValue[0];
+
+                    console.log(jsonFile);
+                    
+                    // let clusterData = getClusterData(jsonFile)
+                    get(jsonFile).then(function(response) {
+                        var clusterData = JSON.parse(response);
+                        let selectedCluster = clusterData.filter(
+                            function(data) {return data.cl_id === cluster})
+                        
+                        populateBooks(selectedCluster[0].texts, jsonFile, cluster);
+                        return response
+                        
+                    });
+                })
+                
+
+            };
+
+            let msSelectorOne = document.getElementById('pairs-dropdown-1');
+            msSelectorOne.onchange = (event) => {
+                populateTextContainer(event, "text-container-1", "title-1");
+            };
+
+            let msSelectorTwo = document.getElementById('pairs-dropdown-2');
+            msSelectorTwo.onchange = (event) => {
+                populateTextContainer(event, "text-container-2", "title-2");
+            };
+
+            function populateTextContainer (event, container, titleContainer) {
+                let selectedValue = event.target.value.split("!");
+                
+                let msId = selectedValue[2];
+                let clusterId = Number(selectedValue[1]);
+                let jsonFile = selectedValue[0];
+
+                get(jsonFile).then(function(response) {
+                    var clusterData = JSON.parse(response);
+                    
+                    let selectedCluster = clusterData.filter(
+                        function(data) {return data.cl_id === clusterId});
+                    
+                    let selectedMs = selectedCluster[0].texts.filter(
+                        function(data) {return data.ms_id === msId}
+                    );
+                    
+                    let htmlContainer = document.getElementById(container);                
+                    htmlContainer.innerHTML = selectedMs[0].text;
+                    
+                    let titleHtmlContainer = document.getElementById(titleContainer);
+                    titleHtmlContainer.innerHTML = ""
+                    let header = document.createElement("h5");
+                    let headerText = document.createTextNode(msId);
+                    header.appendChild(headerText);
+                    titleHtmlContainer.appendChild(header)
+
+                    return response
+
+                });
+            };
+
+            function populateBooks (bookList, jsonFile, cluster) {
+                let booksContainer = document.getElementById("cl-book-list");
+                let containOption1 = document.getElementById("pairs-dropdown-1")
+                let containOption2 = document.getElementById("pairs-dropdown-2")
+                // booksContainer.innerHTML = ""
+                // containOption1.innerHTML = "<option>choose a book</option>"
+                // containOption2.innerHTML = "<option>choose a book</option>"
+                bookList.forEach(book => {
+                    let listItem = document.createElement("li");
+                    let optionItem = document.createElement("option");
+                    let optionItem2 = optionItem.cloneNode();
+                    let listText = document.createTextNode(book.ms_id);
+                    listItem.appendChild(listText);
+
+                    optionItem.value = `${jsonFile}!${cluster}!${book.ms_id}`;
+                    optionItem2.value = `${jsonFile}!${cluster}!${book.ms_id}`;
+                    optionItem.appendChild(listText.cloneNode());
+                    optionItem2.appendChild(listText.cloneNode())
+                    
+                    
+            
+
+                    booksContainer.appendChild(listItem);
+                    containOption2.appendChild(optionItem2);
+                    containOption1.appendChild(optionItem);
+                    
+                    
+                }); 
+            };
+
+            //Select all function
+            let selectAllButton = document.getElementById("select-all")
+
+            selectAllButton.onclick = () => {
+                let selectBox = document.getElementById("cluster-selector")
+                for (var i = 0; i < selectBox.options.length; i++) { 
+                    selectBox.options[i].selected = "true";    
+                };
+                handleSelection()
+            };
+
+
+        
+
+
+            // Function for fetching the json
+            function get(url) {
+                // Return a new promise.
+                return new Promise(function(resolve, reject) {
+                    // Do the usual XHR stuff
+                    var req = new XMLHttpRequest();
+                    req.open('GET', url);
+
+                    req.onload = function() {
+                    // This is called even on 404 etc
+                    // so check the status
+                    if (req.status == 200) {
+                        // Resolve the promise with the response text
+                        resolve(req.response);
+                    }
+                    else {
+                        // Otherwise reject with the status text
+                        // which will hopefully be a meaningful error
+                        reject(Error(req.statusText));
+                    }
+                    };
+
+                    // Handle network errors
+                    req.onerror = function() {
+                    reject(Error("Network Error"));
+                    };
+
+                    // Make the request
+                    req.send();
+                });
+                };
+
+                function getJSON(url) {
+                    return get(url).then(JSON.parse);
+                    }
+
+            
+
+        </script>
+        <!-- Script to add highlighting functionality - using mark.js-->
+        <script>
+            function highlight(param) {
+    
+                // Select the whole paragraph
+                var ob = new Mark(document.querySelector(".select"));
+    
+                
+                // Highlight letter or word
+                ob.mark(
+                    document.getElementById("searched").value,
+                    { className: 'a' + param }
+                );
+                document.getElementById("searched").value = ""
+            };
+            function removeHiglight(){
+                var ob = new Mark(document.querySelector(".select"));
+                // Unmark the highlighted words or letter
+                ob.unmark();
+            }
+
+        </script>
+
+        <!-- Scripts for managing the page - selections opening and closing panels-->
+        <script>
+
+
+            function openPanel() {                  
+                    document.getElementById("ms-panel").setAttribute("class", "col")
+                    document.getElementById("panel-1").setAttribute("class", "col")
+                    document.getElementById("panel-2").setAttribute("class", "col")
+                    document.getElementById("ms-label-row").setAttribute("class", "col pt-2")
+                    document.getElementById("panel-1-label-row").setAttribute("class", "col")
+                    document.getElementById("panel-2-label-row").setAttribute("class", "col")
+                    document.getElementById("open-button").classList.toggle("d-none")
+                    document.getElementById("close-button").classList.toggle("d-none")
+            };
+
+            function closePanel(panelId) {
+                document.getElementById("ms-panel").setAttribute("class", "col-6")
+                document.getElementById("panel-1").setAttribute("class", "col-6")
+                document.getElementById("panel-2").setAttribute("class", "col d-none")
+                document.getElementById("ms-label-row").setAttribute("class", "col-6 pt-2")
+                document.getElementById("panel-1-label-row").setAttribute("class", "col-6")
+                document.getElementById("panel-2-label-row").setAttribute("class", "col d-none")
+                document.getElementById("open-button").classList.toggle("d-none")
+                document.getElementById("close-button").classList.toggle("d-none")
+            };
+
+
+        </script>
+
+
+
+        <div class="container">
+            
+            <!--Row containing cluster stats-->            
+            <div class="row p-1 bg-light">
+                <div class = "col-4">
+                    <h4 id="cluster-count">Number of clusters: </h4>
+                    <br>
+                    <button id="select-all">Select all clusters</button>
+                </div>
+                <div class="col-4">
+                    <select class = "form-select" multiple id="cluster-selector">
+                        <option>one</option>
+                        <option>two</option>
+                        <option>three</option>
+                    </select>
+                </div>
+                <div class = "col-4">
+                    <h4>Books in selected</h4>
+                    <div id="cl-book-list" class="bookBox">
+                        Select a cluster to see books
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search row-->
+            <div class="p-2 row bg-secondary">
+                <div class = "col-6">
+                    <input type="text" id="searched" class="rtl-input"/>
+                    <button id="initiate-search", onclick="highlight('0')">Highlight text</button>
+                    <button id="remove-all", onclick="removeHiglight()">Remove all highlights</button>
+                </div>
+                <div class="col-6 text-end">
+                    <button id = "open-button", onClick="openPanel()">
+                        Show Panel 2
+                    </button>
+                    <button id="close-button" onClick="closePanel()" class="d-none">
+                        Hide Panel 2
+                    </button>
+                </div>
+            </div>            
+
+           <!-- Row for column labels-->
+            <div class="row">
+                <!-- Top row of options -->
+                <div class = "col-6 pt-2" id="ms-label-row">
+                    <div class="row">
+                        <div class = "col-1">
+                            <a data-bs-toggle="offcanvas" role="button" href="#offcanvasExample" aria-controls="offcanvasExample">
+                                <i class="bi bi-list"></i>
+                            </a>
+                        </div>
+                        <div class = "col-1">
+                            <a id="back-button">
+                                <i class = "bi bi-arrow-left-circle"></i>
+                            </a>
+                        </div>
+                        <div class = "col-9 text-center align-middle">
+                            <h5 id="ms-no">@ms_no@</h>
+                        </div>
+                        <div class = "col-1">
+                            <a id="next-button">
+                                <i class = "bi bi-arrow-right-circle"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6" id="panel-1-label-row">
+                    <!--Div containing options-->
+                    <div class = "p-2">
+                        <label for="pairs-dropdown-1">Panel 1: Select a book</label>
+                        <select name="pairs-dropdown-1" value="" id="pairs-dropdown-1", onchange="getMilestone()">
+                            <option value="">choose a book</option>
+                            
+                        </select>
+                    </div>
+                </div>
+                <div class="col d-none" id="panel-2-label-row">
+                    <!--Div containing options-->
+                    <div class = "p-2">
+                        <label for="pairs-dropdown-2">Panel 2: Select a book</label>
+                        <select name="pairs-dropdown-2" value="" id="pairs-dropdown-2", onchange="getMilestone()">
+                            <option value="">choose a book</option>
+                            
+                        </select>
+                    </div>                            
+                </div>       
+            </div>
+            <!--Row for viewing texts-->
+            <div class="row select p-2">
+                
+                <div class="col" id="ms-panel">
+
+                    <!-- Div for the text-->
+                    <div class = "border scrollDiv" id="ms-container">
+                        
+                    </div>
+                </div>
+                <!-- The js will populate this by looking-up the json of aligned text-->
+                <div class="col" id="panel-1">
+                    
+                    <!--Div containing text-->
+                    <div id="text-container-1" class="border scrollDiv">
+                        
+                    </div>
+                    <div id="title-1" class="bg-light p-2 text-center">
+
+                    </div>
+                </div>
+                <!-- The js will populate this by looking-up the json of aligned text for container 2-->
+                <div class="col d-none" id="panel-2">
+                    
+                    <!--Div containing text-->
+                    <div id="text-container-2" class="border scrollDiv">
+                        
+                    </div>
+                    <div id="title-2" class="bg-light p-2 text-center">
+
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Accordion containing original query text-->
+            <!-- <div class="accordion p-1" id="accordion">
+                <div class="accordion-item">
+                    <h4 class="accordion-header" id="queryText">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#queryContent" aria-expanded="false" aria-controls="collapseTwo">
+                        Cluster string
+                    </button>
+                    </h2>
+                    <div id="queryContent" class="accordion-collapse collapse" aria-labelledby="queryText" data-bs-parent="#accordion">
+                    <div class="accordion-body">
+                        <div style="direction:rtl; font-family: Amiri;  font-size: 1.5em">
+                            @query_string@
+                        </div>
+                        
+                    </div>
+                    </div>
+                </div>
+            </div> -->
+
+            <!-- Off-canvas that will store the contents page of ms-->
+            <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasLabel">
+                <div class="offcanvas-header">
+                    <a href="https://kitab-project.org/">
+                        <img src="assets/logo/KITAB Logo.jpg" alt="kitab-project" class="logo-image">
+                    </a>
+                    <h5 class="offcanvas-title" id="offcanvasLabel">0845Maqrizi.ItticazHunafa-fitna-ms<br>Clusters-Version-2022.2.7</h5>
+                    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body">
+                    <h4>Select a milestone</h4>
+                    <div id="ms-contents-page">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        
+
+    </body>
+

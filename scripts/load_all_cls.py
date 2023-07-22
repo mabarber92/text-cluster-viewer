@@ -9,7 +9,7 @@ import pyarrow.parquet as pq
 import os
 from tqdm import tqdm
 
-def load_all_cls(parquet_path, meta_path, max_date = 900, cluster_cap = 500, columns = ["uid", "gid", "cluster", "size", "seq", "series", "text", "begin", "end"], drop_strings = False, drop_dates = True):
+def load_all_cls(path, meta_path, max_date = 900, cluster_cap = 500, columns = ["uid", "gid", "cluster", "size", "seq", "series", "text", "begin", "end"], drop_strings = False, drop_dates = True):
     
     meta_df = pd.read_csv(meta_path, sep="\t")[["id", "book", "date"]]
 
@@ -19,16 +19,23 @@ def load_all_cls(parquet_path, meta_path, max_date = 900, cluster_cap = 500, col
     if "series" not in columns:
         columns.append("series")
     print("Loading all clusters below: " + str(cluster_cap))
-    print(parquet_path)
-    for root, dirs, files in os.walk(parquet_path, topdown=False):
+    print(path)
+    for root, dirs, files in os.walk(path, topdown=False):
         for name in tqdm(files):
             if name.split(".")[-1] == "parquet":
-                pq_path = os.path.join(root, name)
+                file_type = "parquet"
+            if name.split(".")[-1] == "json":
+                file_type = "json"
+            if file_type == "parquet" or file_type == "json":
+                file_path = os.path.join(root, name)
                 if drop_strings:
                     if "text" in columns:
                         columns.remove("text")
                         
-                data = pq.read_table(pq_path).to_pandas()[columns]
+                if file_type == "json":
+                    data = pd.read_json(file_path, lines=True)[columns]
+                else:
+                    data = pq.read_table(file_path).to_pandas()[columns]
 
                 if cluster_cap is not None:
                     data = data[data["size"] < cluster_cap]

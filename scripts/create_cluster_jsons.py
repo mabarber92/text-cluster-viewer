@@ -6,7 +6,7 @@ import json
 from tqdm import tqdm
 from openiti.helper.funcs import text_cleaner
 
-def tag_ms(clusters, ms_section, safe_tags="###\s\|+\s|\n#\s|###\s\|+\s|PageV\d+P\d+|~~|\n", tags = None):
+def tag_ms(clusters, ms_section, safe_tags="###\s\|+\s|\n#\s|###\s\|+\s|PageV\d+P\d+|~~|\n|%~%", tags = None):
     """The function that handles tagging the clusters into an individual milestone
     and returns the tagged milestone"""
     # Only clean and tag out cluster if clusters exist                    
@@ -135,9 +135,11 @@ def mARkdown_to_html(text, mark_cls = True):
     text = re.sub(r"(ms\d+)", r"<mark class='ms'>\1</mark>", text)
     # Add highlighting to page markers
     text = re.sub(r"(PageV\d+P\d+)", r"<mark class='pageno'> \1 </mark>", text)
+    # Add highlighting to poetry markers
+    text = re.sub(r"(%~%)", r"<mark class='poetryMark'> \1 </mark>", text)
     # If mark_cls is true - highlight the cluster markers
     if mark_cls:
-        text = re.sub(r"(@clb@\d?@?\d+@)", r"<mark class='clusterStart'>\1</mark>", text)
+        text = re.sub(r"(@clb@\d+@\d+@)", r"<mark class='clusterStart'>\1</mark>", text)
         text = re.sub(r"(@cle@\d?@?\d+@)", r"<mark class='clusterEnd'>\1</mark>", text)
     # return the text
     return text
