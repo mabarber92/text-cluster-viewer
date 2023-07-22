@@ -81,6 +81,10 @@
                 localStorage['panelOpen'] = false
             };
 
+            function expandClusterPanel() {
+                document.getElementById("cl-book-list").classList.toggle("bookBox")
+            }
+
 
         </script>
 
@@ -89,25 +93,27 @@
         <div class="container">
             
             <!--Row containing cluster stats-->            
-            <div class="row p-1 bg-light">
+            <div class="row bg-light">
                 <div class = "col-4">
                     <h4 id="cluster-count">Number of clusters: </h4>
-                    <br>
-                    <button id="select-all">Select all clusters</button>
+                    <!-- <br>
+                    <button id="select-all">Select all clusters</button> -->
                 </div>
-                <div class="col-4">
+                <div class = "col-8 text-end">
+                    <a onClick="expandClusterPanel()">
+                        <i id="cluster-box-arrow" class="bi bi-arrows-angle-expand"></i>
+                    </a>
+                </div>
+                <!-- <div class="col-4">
                     <select class = "form-select" multiple id="cluster-selector">
                         <option>one</option>
                         <option>two</option>
                         <option>three</option>
                     </select>
-                </div>
-                <div class = "col-4">
-                    <h4>Books in selected</h4>
-                    <div id="cl-book-list" class="bookBox">
-                        Select a cluster to see books
-
-                    </div>
+                </div> -->
+            </div>
+            <div class = "row p-1 bg-light">                    
+                <div id="cl-book-list" class="bookBox row row-cols-3 g-2">                        
                 </div>
             </div>
 
@@ -157,7 +163,7 @@
                     <!--Div containing options-->
                     <div class = "p-2">
                         <label for="pairs-dropdown-1">Panel 1: Select a book</label>
-                        <select name="pairs-dropdown-1" value="" id="pairs-dropdown-1", onchange="getMilestone()">
+                        <select name="pairs-dropdown-1" value="" id="pairs-dropdown-1">
                             <option value="">choose a book</option>
                             
                         </select>
@@ -167,7 +173,7 @@
                     <!--Div containing options-->
                     <div class = "p-2">
                         <label for="pairs-dropdown-2">Panel 2: Select a book</label>
-                        <select name="pairs-dropdown-2" value="" id="pairs-dropdown-2", onchange="getMilestone()">
+                        <select name="pairs-dropdown-2" value="" id="pairs-dropdown-2">
                             <option value="">choose a book</option>
                             
                         </select>

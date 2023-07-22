@@ -21,9 +21,9 @@ window.onload = (event) => {
     sideBar.appendChild(sideBarLinks)
 
     // When page has loaded - run requisite functions
-    clusterSelector();
+    // clusterSelector();
     titlePopulator();
-    selectAll();
+    // selectAll();
     
     // Check the local storage to see if the panel was open in the previous view
     // If it is open it on the page load
@@ -97,18 +97,19 @@ function fillMsBoxes(msData, data) {
     let clusterCountBox = document.getElementById('cluster-count');
     clusterCountBox.innerHTML = `Number of Clusters: ${msData.cls_count}`
 
-    let clusterOptions = document.getElementById('cluster-selector');
-    clusterOptions.innerHTML = "";
-    for (let i=0; i < msData.cls.length; i++) {
-        let clusterData = msData.cls[i];
+    // let clusterOptions = document.getElementById('cluster-selector');
+    // clusterOptions.innerHTML = "";
+    // for (let i=0; i < msData.cls.length; i++) {
+    //     let clusterData = msData.cls[i];
         
-        let optionHtml = document.createElement("option")
-        optionHtml.value = `./${msData.cl_json}-${clusterData.cl_id}`;
-        let optionText = document.createTextNode(`${clusterData.cl_id}-(${clusterData.ms_count} ms)`)
-        optionHtml.appendChild(optionText)
+    //     let optionHtml = document.createElement("option")
+    //     optionHtml.value = `./${msData.cl_json}-${clusterData.cl_id}`;
+    //     let optionText = document.createTextNode(`${clusterData.cl_id}-(${clusterData.ms_count} ms)`)
+    //     optionHtml.appendChild(optionText)
                         
-        clusterOptions.appendChild(optionHtml);
-    };
+    //     clusterOptions.appendChild(optionHtml);
+    // };
+    createClusterCard(msData);
     
     
     let nextMs = msData.ms + 1;
@@ -180,9 +181,62 @@ function handleSelection() {
 
 };
 
+
+function createClusterCard (data) {
+    let clusterContainer = document.getElementById("cl-book-list");
+    let jsonPath = data.cl_json;
+    console.log(data.cls)
+    let sortedCls = data.cls.sort((a, b) => 
+        a.ms_count - b.ms_count
+    )
+    console.log(sortedCls)
+    sortedCls.forEach(cl =>{
+        let colDiv = document.createElement('div');
+        colDiv.setAttribute("class", "col");
+        let cardDiv = document.createElement('div');
+        cardDiv.setAttribute("class", "card");
+        colDiv.appendChild(cardDiv);
+        let cardTitle = document.createElement('div');
+        cardTitle.setAttribute("class", "card-header pt-1 pb-1");
+        titleText = document.createTextNode(`${cl.cl_id} - ${cl.ms_count} Ms`);
+        cardTitle.appendChild(titleText);
+        cardDiv.appendChild(cardTitle);
+        let cardBody = document.createElement("ul");
+        cardBody.setAttribute("class", "list-group list-group-flush");        
+        get(jsonPath).then(
+            function(response) {
+                var clusterData = JSON.parse(response);                
+                let selectedCluster = clusterData.filter(
+                    function(data) {return data.cl_id === cl.cl_id}
+                );
+                populateBooks(selectedCluster[0].texts, jsonPath, cl.cl_id)
+                
+                selectedCluster[0].texts.forEach(text => {
+                    cardRow = document.createElement("li");
+                    cardRow.setAttribute("class", "list-group-item pt-0 pb-0")
+                    cardRow.innerHTML = `${text.ms_id}
+                    <a onClick="populateTextContainer('${jsonPath}!${cl.cl_id}!${text.ms_id}','text-container-1', 'title-1', event=false)"> 
+                        <i class="bi bi-1-square"> </i>
+                    </a>
+                    <a onClick="populateTextContainer('${jsonPath}!${cl.cl_id}!${text.ms_id}','text-container-2', 'title-2', event=false)"> 
+                        <i class="bi bi-2-square"></i>
+                    </a>
+                    `
+                    cardBody.appendChild(cardRow)
+                });
+            }
+        );
+        cardDiv.appendChild(cardBody);
+        clusterContainer.appendChild(colDiv);
+        }
+    );
+
+}
+
 function titlePopulator () {
     let msSelectorOne = document.getElementById('pairs-dropdown-1');
     msSelectorOne.onchange = (event) => {
+        console.log(event)
         populateTextContainer(event, "text-container-1", "title-1");
     };
 
@@ -193,9 +247,15 @@ function titlePopulator () {
 };
 
 
-function populateTextContainer (event, container, titleContainer) {
-    let selectedValue = event.target.value.split("!");
+function populateTextContainer (input, container, titleContainer, event=true) {
     
+    if (event === true) {
+        var selectedValue = input.target.value.split("!");
+    } else {
+        var selectedValue = input.split("!");
+    };
+    
+    console.log(selectedValue)
     let msId = selectedValue[2];
     let clusterId = Number(selectedValue[1]);
     let jsonFile = selectedValue[0];
@@ -205,7 +265,7 @@ function populateTextContainer (event, container, titleContainer) {
         
         let selectedCluster = clusterData.filter(
             function(data) {return data.cl_id === clusterId});
-        
+            console.log(selectedCluster)
         let selectedMs = selectedCluster[0].texts.filter(
             function(data) {return data.ms_id === msId}
         );
@@ -226,7 +286,7 @@ function populateTextContainer (event, container, titleContainer) {
 };
 
 function populateBooks (bookList, jsonFile, cluster) {
-    let booksContainer = document.getElementById("cl-book-list");
+    // let booksContainer = document.getElementById("cl-book-list");
     let containOption1 = document.getElementById("pairs-dropdown-1")
     let containOption2 = document.getElementById("pairs-dropdown-2")
     // booksContainer.innerHTML = ""
@@ -247,7 +307,7 @@ function populateBooks (bookList, jsonFile, cluster) {
         
 
 
-        booksContainer.appendChild(listItem);
+        // booksContainer.appendChild(listItem);
         containOption2.appendChild(optionItem2);
         containOption1.appendChild(optionItem);
         

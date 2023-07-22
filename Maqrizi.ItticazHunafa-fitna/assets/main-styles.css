@@ -57,3 +57,11 @@ mark.clusterEnd {
 .bi {
     font-size: 22px
 }
+
+.bi.bi-1-square {
+    font-size: 15px;
+}
+
+.bi.bi-2-square {
+    font-size: 15px;
+}

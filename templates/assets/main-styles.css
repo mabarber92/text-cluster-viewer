@@ -45,18 +45,26 @@ mark.clusterEnd {
 }
 
 mark.poetryMark {
-    background: lightblue
+    background: lightblue;
 }
 
 
 .rtl-input {
-    direction: rtl
+    direction: rtl;
 }
 
 .logo-image {
-    max-width: 25%
+    max-width: 25%;
 }
 
 .bi {
-    font-size: 22px
+    font-size: 22px;
+}
+
+.bi.bi-1-square {
+    font-size: 15px;
+}
+
+.bi.bi-2-square {
+    font-size: 15px;
 }
