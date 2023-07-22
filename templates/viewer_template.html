@@ -93,30 +93,32 @@
         <div class="container">
             
             <!--Row containing cluster stats-->            
-            <div class="row bg-light">
-                <div class = "col-4">
-                    <h4 id="cluster-count">Number of clusters: </h4>
-                    <!-- <br>
-                    <button id="select-all">Select all clusters</button> -->
+            <div class="bg-light row">
+                <div class ="row">
+                    <div class = "col-4">
+                        <h5 id="cluster-count">Number of clusters: </h4>
+                        <!-- <br>
+                        <button id="select-all">Select all clusters</button> -->
+                    </div>
+                    <div class = "col-8 text-end">
+                        <a onClick="expandClusterPanel()">
+                            <i id="cluster-box-arrow" class="bi bi-arrows-angle-expand"></i>
+                        </a>
+                    </div>
+                    <!-- <div class="col-4">
+                        <select class = "form-select" multiple id="cluster-selector">
+                            <option>one</option>
+                            <option>two</option>
+                            <option>three</option>
+                        </select>
+                    </div> -->
                 </div>
-                <div class = "col-8 text-end">
-                    <a onClick="expandClusterPanel()">
-                        <i id="cluster-box-arrow" class="bi bi-arrows-angle-expand"></i>
-                    </a>
+                <div id="cl-book-list" class="row bookBox pt-0 pb-1 row-cols-3 g-2">                        
                 </div>
-                <!-- <div class="col-4">
-                    <select class = "form-select" multiple id="cluster-selector">
-                        <option>one</option>
-                        <option>two</option>
-                        <option>three</option>
-                    </select>
-                </div> -->
             </div>
-            <div class = "row p-1 bg-light">                    
-                <div id="cl-book-list" class="bookBox row row-cols-3 g-2">                        
-                </div>
-            </div>
-
+                               
+            
+            
             <!-- Search row-->
             <div class="p-2 row bg-secondary">
                 <div class = "col-6">
