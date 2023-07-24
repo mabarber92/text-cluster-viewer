@@ -5,6 +5,7 @@ import os
 import json
 from tqdm import tqdm
 from openiti.helper.funcs import text_cleaner
+import sys
 
 def tag_ms(clusters, ms_section, safe_tags="###\s\|+\s|\n#\s|###\s\|+\s|PageV\d+P\d+|~~|\n|%~%", tags = None):
     """The function that handles tagging the clusters into an individual milestone
@@ -144,14 +145,14 @@ def mARkdown_to_html(text, mark_cls = True):
     # return the text
     return text
 
-def create_cluster_jsons(cluster_path, meta_path, main_book_uri, corpus_base_path, output_path, ms_per_json = 5, start_ms = 1, end_ms = None):
+def create_cluster_jsons(cluster_path, meta_path, main_book_uri, corpus_base_path, output_path, pri_only_corpus=False, drop_strings=False, ms_per_json = 5, start_ms = 1, end_ms = None):
 
     # If needed build output directory
     if not os.path.exists(output_path):
         os.mkdir(output_path)
 
     # Fetch the clusters
-    cluster_df = clusterDf(cluster_path, meta_path, cluster_cap = 100, max_date=1000).cluster_df
+    cluster_df = clusterDf(cluster_path, meta_path, drop_strings=drop_strings, cluster_cap = 100, max_date=1000).cluster_df
     
     # Get a fitered df for the main text
     main_clusters_df = cluster_df[cluster_df["book"] == main_book_uri]
@@ -162,10 +163,22 @@ def create_cluster_jsons(cluster_path, meta_path, main_book_uri, corpus_base_pat
     meta_df = create_corpus_paths(meta_df, corpus_base_path)
 
     # Open and store text
-    main_text_path = meta_df[meta_df["book"] == main_book_uri]["rel_path"].to_list()[0]
+    if not pri_only_corpus:
+        main_text_path = meta_df[meta_df["book"] == main_book_uri]["rel_path"].to_list()[0]
+    else:
+        text_uri = meta_df[meta_df["book"] == main_book_uri]["rel_path"].to_list()[0].split("/")[-1]
+        main_text_path = os.path.join(corpus_base_path, text_uri)
+    
+    # If the path doesn't exist - try removing the extension
+    if not os.path.exists(main_text_path):
+        main_text_path = (".").join(main_text_path.split(".")[:-1])
+        if not os.path.exists(main_text_path):
+            print("Main text not found: {}".format(main_text_path))
+            sys.exit()
     with open(main_text_path, encoding="utf-8-sig") as f:
         main_text = f.read()
     
+        
     # Get the milestone count and z-fill for main text
     ms_list = re.findall(r"ms(\d+)", main_text)
     ms_count = len(ms_list)
@@ -200,17 +213,36 @@ def create_cluster_jsons(cluster_path, meta_path, main_book_uri, corpus_base_pat
             clusters_for_ms = []
             # clusters_for_out = []
             for cluster in filtered_clusters:
-                ms_list = cluster_df[cluster_df["cluster"] == cluster["cluster"]].to_dict("records")
+                ms_list = cluster_df[cluster_df["cluster"] == cluster["cluster"]].sort_values(by=["book"]).to_dict("records")
 
                 cluster_ms_text = []
                 for cluster_ms in ms_list:
-                    comp_text_path = meta_df[meta_df["book"] == cluster_ms["book"]]["rel_path"].to_list()[0]
-                    with open(comp_text_path, encoding='utf-8-sig') as f:
-                        comp_text = f.read()
-                    zfill_comp = len(re.findall(r"ms(\d+)", comp_text)[0])
-                    comp_ms_text = create_ms_slice(cluster_ms["seq"], zfill_comp, comp_text, ms_spread=[0,0])
-                    comp_ms_text = tag_ms(cluster_ms, comp_ms_text)
-                    comp_ms_text = mARkdown_to_html(comp_ms_text)
+                    if not pri_only_corpus:
+                        comp_text_path = meta_df[meta_df["book"] == cluster_ms["book"]]["rel_path"].to_list()[0]
+                    else:
+                        text_uri = meta_df[meta_df["book"] == cluster_ms["book"]]["rel_path"].to_list()[0].split("/")[-1]
+                        comp_text_path = os.path.join(corpus_base_path, text_uri)
+                    
+                    use_markdown=True
+                    # If the path doesn't exist - try removing the extension - if that fails use just the plain text from the cluster - if drop strings has been set to false
+                    if not os.path.exists(comp_text_path):
+                        comp_text_path = (".").join(comp_text_path.split(".")[:-1])
+                        if not os.path.exists(comp_text_path):
+                            print("Main text not found: {} ... using cluster text instead of markdown".format(comp_text_path))
+                            use_markdown = False
+                            if not drop_strings:
+                                comp_ms_text = cluster_ms["text"]
+                            else:
+                                comp_ms_text = "Corresponding mARkdown not found"
+                        
+                    if use_markdown:
+                        with open(comp_text_path, encoding='utf-8-sig') as f:
+                            comp_text = f.read()
+                        zfill_comp = len(re.findall(r"ms(\d+)", comp_text)[0])
+                        comp_ms_text = create_ms_slice(cluster_ms["seq"], zfill_comp, comp_text, ms_spread=[0,0])
+                        comp_ms_text = tag_ms(cluster_ms, comp_ms_text)
+                        comp_ms_text = mARkdown_to_html(comp_ms_text)
+                    
                     cluster_ms_text.append({"ms_id": cluster_ms["book"] + "-" + str(cluster_ms["seq"]), "text": comp_ms_text})
                 
                 clusters_out.append({"cl_id": cluster["cluster"], "texts": cluster_ms_text})

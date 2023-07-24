@@ -3,7 +3,7 @@ import os
 import re
 import shutil
 
-def build_webpage(cluster_path, meta_path, main_book_uri, corpus_base_path, output_path, ms_per_json = 5, start_ms = 1, end_ms = None, page_title=None, viewer_template_folder = "../templates/"):
+def build_webpage(cluster_path, meta_path, main_book_uri, corpus_base_path, output_path, pri_only_corpus=False, ms_per_json = 5, start_ms = 1, end_ms = None, page_title=None, viewer_template_folder = "../templates/"):
 
     # Create output directory
     if not os.path.exists(output_path):
@@ -34,19 +34,19 @@ def build_webpage(cluster_path, meta_path, main_book_uri, corpus_base_path, outp
     print("Created html page")
 
     # Run the json compiler in the same directory
-    create_cluster_jsons(cluster_path, meta_path, main_book_uri, corpus_base_path, output_path, ms_per_json = ms_per_json, start_ms = start_ms, end_ms = end_ms)
+    create_cluster_jsons(cluster_path, meta_path, main_book_uri, corpus_base_path, output_path, pri_only_corpus=pri_only_corpus, ms_per_json = ms_per_json, start_ms = start_ms, end_ms = end_ms)
 
     print("Success")
 
 if __name__ == "__main__":
-    corpus_base_path = "E:/OpenITI Corpus/corpus_2022_2_7/"
-    meta_path = "E:/Corpus Stats/2023/OpenITI_metadata_2022-2-7.csv"
-    cluster_path = "E:/Corpus Stats/2023/v7-clusters/out.json"
-    output_path = "../Maqrizi.ItticazHunafa-fitna-2-7/"
-    main_text = "0845Maqrizi.ItticazHunafa"
-    title = "0845Maqrizi.ItticazHunafa-fitna-ms<br>Clusters-Version-2022.2.7"
+    corpus_base_path = "D:/OpenITI Corpus/OpenITI-pri-data_v7/"
+    meta_path = "D:/Corpus Stats/2023/OpenITI_metadata_2022-2-7.csv"
+    cluster_path = "D:/Corpus Stats/2023/v7-clusters/out.json"
+    output_path = "../0460Anonymous.DhakhairTuhaf-2-7/"
+    main_text = "0460Anonymous.DhakhairTuhaf"
+    title = "0460Anonymous.DhakhairTuhaf<br>Clusters-Version-2022.2.7"
 
-    build_webpage(cluster_path, meta_path, main_text, corpus_base_path, output_path, start_ms=360, end_ms=394, page_title=title)
+    build_webpage(cluster_path, meta_path, main_text, corpus_base_path, output_path, pri_only_corpus=True, page_title=title)
 
 
 
