@@ -19,6 +19,9 @@
 mark.markHead {                
     background-color: rgb(172, 114, 6); 
     color: rgb(247, 244, 244);
+    padding: 0;
+    display: inline-block;
+    font-size: 35px
 }
 
 mark.ms {
