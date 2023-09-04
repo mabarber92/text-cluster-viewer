@@ -39,14 +39,14 @@ def build_webpage(cluster_path, meta_path, main_book_uri, corpus_base_path, outp
     print("Success")
 
 if __name__ == "__main__":
-    corpus_base_path = "D:/OpenITI Corpus/OpenITI-pri-data_v7/"
-    meta_path = "D:/Corpus Stats/2023/OpenITI_metadata_2022-2-7.csv"
-    cluster_path = "D:/Corpus Stats/2023/v7-clusters/out.json"
-    output_path = "../0460Anonymous.DhakhairTuhaf-2-7/"
-    main_text = "0460Anonymous.DhakhairTuhaf"
-    title = "0460Anonymous.DhakhairTuhaf<br>Clusters-Version-2022.2.7"
+    corpus_base_path = "E:/OpenITI Corpus/OpenITI-pri-data_v7/"
+    meta_path = "E:/Corpus Stats/2023/OpenITI_metadata_2022-2-7.csv"
+    cluster_path = "E:/Corpus Stats/2023/v7-clusters/minified_clusters_pre-1000AH_under500.csv"
+    output_path = "../0310Tabari.Tarikh.mihna-ms/"
+    main_text = "0310Tabari.Tarikh"
+    title = "0310Tabari.Tarikh.mihna-ms<br>Clusters-Version-2022.2.7"
 
-    build_webpage(cluster_path, meta_path, main_text, corpus_base_path, output_path, pri_only_corpus=True, page_title=title)
+    build_webpage(cluster_path, meta_path, main_text, corpus_base_path, output_path, pri_only_corpus=True, page_title=title, start_ms = 4156, end_ms=4159)
 
 
 

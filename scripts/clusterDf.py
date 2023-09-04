@@ -1,16 +1,17 @@
 from load_all_cls import load_all_cls
 import pandas as pd
 import re
+import os
 
 class clusterDf():
-    def __init__ (self, cluster_path, meta_path, max_date = 1500, cluster_cap = None, drop_strings = True, columns = ["cluster", "size", "seq", "series", "begin", "end"]):
-        self.cluster_df = load_all_cls(cluster_path, meta_path, drop_strings=drop_strings, columns = columns, drop_dates=False, max_date = max_date, cluster_cap = cluster_cap)
+    def __init__ (self, cluster_path, meta_path, min_date=0, max_date = 1500, cluster_cap = 500, drop_strings = True, columns = ["uid", "gid", "cluster", "size", "seq", "series", "text", "begin", "end"]):
+        self.cluster_df = load_all_cls(cluster_path, meta_path, drop_strings=drop_strings, columns = columns, drop_dates=False, max_date = max_date, min_date=min_date, cluster_cap = cluster_cap)
     
     def count_books(self):
-        return len(self.cluster_df[cluster_df["series"]].drop_duplicates())
+        return len(self.cluster_df[self.cluster_df["series"]].drop_duplicates())
 
     def count_clusters(self):
-        return len(self.cluster_df[cluster_df["cluster"]].drop_duplicates())
+        return len(self.cluster_df[self.cluster_df["cluster"]].drop_duplicates())
     
     def fetch_max_cluster(self):
         return self.cluster_df["size"].max()
@@ -71,14 +72,30 @@ class clusterDf():
         
         return pd.DataFrame(stat_dicts)
 
+    def filter_by_author_list(self, author_list):
+        print("Filtering clusters by authors: {}".format(author_list))
+        author_df = self.cluster_df.copy()
+        author_df["author"] = author_df["book"].str.split(".", expand=True)[0]        
+        self.cluster_df = author_df[author_df["author"].isin(author_list)]
+        self.cluster_df.drop(columns=["author"])
+    
+    def filter_by_book_list(self, book_list, exclude_listed_books=False):
+        """If exclude_listed_books is true - it will return the only rows that do not match the book list"""
+        if exclude_listed_books:
+            print("Filtering clusters to exclude books: {}".format(book_list))
+            self.cluster_df = self.cluster_df[~self.cluster_df["book"].isin(book_list)]
+        else:
+            print("Filtering clusters by books: {}".format(book_list))
+            self.cluster_df = self.cluster_df[self.cluster_df["book"].isin(book_list)]
+
+    def to_minified_csv(self, out_path, columns = ["cluster", "id", "seq", "begin", "end", "size"]):
+        minified_csv = self.cluster_df[columns]
+        minified_csv.to_csv(out_path)
 
 if __name__ == "__main__":
-    
-    clusters = "C:/Users/mathe/Documents/Kitab project/passim/clusters-2022/"
-    meta = "E:/Corpus Stats/2021/OpenITI_metadata_2021-2-5_merged_wNoor.csv"
-    cluster_df_obj = clusterDf(clusters, meta)
-    print(cluster_df_obj.count_books())
-    print(cluster_df_obj.count_clusters())
-    print(cluster_df_obj.fetch_max_cluster())
-
-    # stats = cluster_df_obj.fetch_top_reusers(uri="0845Maqrizi.Mawaciz", exclude_self_reuse=True, dir="anachron", csv_out = "0845Maqrizi.Mawaciz-reused-texts.csv")
+    print(os.getcwd())
+    clusters = "D:/Corpus Stats/2023/v7-clusters/out.json"
+    meta = "D:/Corpus Stats/2023/OpenITI_metadata_2022-2-7_merged.csv"
+    out_csv = "D:/Corpus Stats/2023/v7-clusters/minified_clusters_pre-1000AH_under500.csv"
+    cluster_df_obj = clusterDf(clusters, meta, max_date = 1000, cluster_cap=500)
+    cluster_df_obj.to_minified_csv(out_csv)
