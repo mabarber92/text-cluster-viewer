@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+
+<!-- 
+    This template parses a series of json files to allow the user to browse the clusters
+-->
+
+<html>
+    <head>
+        <title>Viewer for evaluating outputs</title>
+
+        <!-- Use bootstrap for easy grid layout-->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css" integrity="sha512-ZnR2wlLbSbr8/c9AgLg3jQPAattCUImNsae6NHYnS9KrIwRdcY9DxFotXhNAKIKbAXlRnujIqUWoXXwqyFOeIQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+        <!-- CDN of mark.js -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js"
+        integrity=
+    "sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww=="
+        crossorigin="anonymous"></script>
+        
+        <!-- Import custom styles-->
+        <link rel="stylesheet" href="assets/main-styles.css"/>
+
+        <!-- Script for taking whats in the dropdown and reading files to populate the right box-->
+        <script src="./assets/js/main.js"></script>
+
+        
+    </head>
+
+    <body>
+        
+
+        <!-- Script to add highlighting functionality - using mark.js-->
+        <script>
+            function highlight(param) {
+    
+                // Select the whole paragraph
+                var ob = new Mark(document.querySelector(".select"));
+    
+                
+                // Highlight letter or word
+                ob.mark(
+                    document.getElementById("searched").value,
+                    { className: 'a' + param }
+                );
+                document.getElementById("searched").value = ""
+            };
+            function removeHiglight(){
+                var ob = new Mark(document.querySelector(".select"));
+                // Unmark the highlighted words or letter
+                ob.unmark();
+            }
+
+        </script>
+
+        <!-- Scripts for managing the page - selections opening and closing panels-->
+        <script>
+
+            function openPanel() {                  
+                document.getElementById("ms-panel").setAttribute("class", "col-4")
+                document.getElementById("panel-1").setAttribute("class", "col-4")
+                document.getElementById("panel-2").setAttribute("class", "col-4")
+                document.getElementById("ms-label-row").setAttribute("class", "col-4 pt-2")
+                document.getElementById("panel-1-label-row").setAttribute("class", "col-4")
+                document.getElementById("panel-2-label-row").setAttribute("class", "col-4")
+                document.getElementById("open-button").classList.toggle("d-none")
+                document.getElementById("close-button").classList.toggle("d-none")
+                localStorage['panelOpen'] = true
+                console.log(localStorage['panelOpen'])
+            };
+
+            function closePanel(panelId) {
+                document.getElementById("ms-panel").setAttribute("class", "col-6")
+                document.getElementById("panel-1").setAttribute("class", "col-6")
+                document.getElementById("panel-2").setAttribute("class", "col d-none")
+                document.getElementById("ms-label-row").setAttribute("class", "col-6 pt-2")
+                document.getElementById("panel-1-label-row").setAttribute("class", "col-6")
+                document.getElementById("panel-2-label-row").setAttribute("class", "col d-none")
+                document.getElementById("open-button").classList.toggle("d-none")
+                document.getElementById("close-button").classList.toggle("d-none")
+                localStorage['panelOpen'] = false
+            };
+
+            function expandClusterPanel() {
+                document.getElementById("cl-book-list").classList.toggle("bookBox")
+            }
+
+
+        </script>
+
+
+
+        <div class="container">
+            
+            <!--Row containing cluster stats-->            
+            <div class="bg-light row">
+                <div class ="row">
+                    <div class = "col-4">
+                        <h5 id="cluster-count">Number of clusters: </h4>
+                        <!-- <br>
+                        <button id="select-all">Select all clusters</button> -->
+                    </div>
+                    <div class = "col-8 text-end">
+                        <a onClick="expandClusterPanel()">
+                            <i id="cluster-box-arrow" class="bi bi-arrows-angle-expand"></i>
+                        </a>
+                    </div>
+                    <!-- <div class="col-4">
+                        <select class = "form-select" multiple id="cluster-selector">
+                            <option>one</option>
+                            <option>two</option>
+                            <option>three</option>
+                        </select>
+                    </div> -->
+                </div>
+                <div id="cl-book-list" class="row bookBox pt-0 pb-1 row-cols-3 g-2">                        
+                </div>
+            </div>
+                               
+            
+            
+            <!-- Search row-->
+            <div class="p-2 row bg-secondary">
+                <div class = "col-6">
+                    <input type="text" id="searched" class="rtl-input"/>
+                    <button id="initiate-search", onclick="highlight('0')">Highlight text</button>
+                    <button id="remove-all", onclick="removeHiglight()">Remove all highlights</button>
+                </div>
+                <div class="col-6 text-end">
+                    <button id = "open-button", onClick="openPanel()">
+                        Show Panel 2
+                    </button>
+                    <button id="close-button" onClick="closePanel()" class="d-none">
+                        Hide Panel 2
+                    </button>
+                </div>
+            </div>            
+
+           <!-- Row for column labels-->
+            <div class="row">
+                <!-- Top row of options -->
+                <div class = "col-6 pt-2" id="ms-label-row">
+                    <div class="row">
+                        <div class = "col-1">
+                            <a data-bs-toggle="offcanvas" role="button" href="#offcanvasExample" aria-controls="offcanvasExample">
+                                <i class="bi bi-list"></i>
+                            </a>
+                        </div>
+                        <div class = "col-1">
+                            <a id="back-button">
+                                <i class = "bi bi-arrow-left-circle"></i>
+                            </a>
+                        </div>
+                        <div class = "col-9 text-center align-middle">
+                            <h5 id="ms-no">@ms_no@</h>
+                        </div>
+                        <div class = "col-1">
+                            <a id="next-button">
+                                <i class = "bi bi-arrow-right-circle"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6" id="panel-1-label-row">
+                    <!--Div containing options-->
+                    <div class = "p-2">
+                        <label for="pairs-dropdown-1">Panel 1: Select a book</label>
+                        <select name="pairs-dropdown-1" value="" id="pairs-dropdown-1">
+                            <option value="">choose a book</option>
+                            
+                        </select>
+                    </div>
+                </div>
+                <div class="col d-none" id="panel-2-label-row">
+                    <!--Div containing options-->
+                    <div class = "p-2">
+                        <label for="pairs-dropdown-2">Panel 2: Select a book</label>
+                        <select name="pairs-dropdown-2" value="" id="pairs-dropdown-2">
+                            <option value="">choose a book</option>
+                            
+                        </select>
+                    </div>                            
+                </div>       
+            </div>
+            <!--Row for viewing texts-->
+            <div class="row select p-2">
+                
+                <div class="col" id="ms-panel">
+
+                    <!-- Div for the text-->
+                    <div class = "border scrollDiv" id="ms-container">
+                        
+                    </div>
+                </div>
+                <!-- The js will populate this by looking-up the json of aligned text-->
+                <div class="col" id="panel-1">
+                    
+                    <!--Div containing text-->
+                    <div id="text-container-1" class="border scrollDiv">
+                        
+                    </div>
+                    <div id="title-1" class="bg-light p-2 text-center">
+
+                    </div>
+                </div>
+                <!-- The js will populate this by looking-up the json of aligned text for container 2-->
+                <div class="col d-none" id="panel-2">
+                    
+                    <!--Div containing text-->
+                    <div id="text-container-2" class="border scrollDiv">
+                        
+                    </div>
+                    <div id="title-2" class="bg-light p-2 text-center">
+
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Accordion containing original query text-->
+            <!-- <div class="accordion p-1" id="accordion">
+                <div class="accordion-item">
+                    <h4 class="accordion-header" id="queryText">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#queryContent" aria-expanded="false" aria-controls="collapseTwo">
+                        Cluster string
+                    </button>
+                    </h2>
+                    <div id="queryContent" class="accordion-collapse collapse" aria-labelledby="queryText" data-bs-parent="#accordion">
+                    <div class="accordion-body">
+                        <div style="direction:rtl; font-family: Amiri;  font-size: 1.5em">
+                            @query_string@
+                        </div>
+                        
+                    </div>
+                    </div>
+                </div>
+            </div> -->
+
+            <!-- Off-canvas that will store the contents page of ms-->
+            <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasLabel">
+                <div class="offcanvas-header">
+                    <a href="https://kitab-project.org/">
+                        <img src="assets/logo/KITAB Logo.jpg" alt="kitab-project" class="logo-image">
+                    </a>
+                    <h5 class="offcanvas-title" id="offcanvasLabel">0310Tabari.Tarikh.founding-baghdad<br>Clusters-Version-2022.2.7</h5>
+                    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body">
+                    <h4>Select a milestone</h4>
+                    <div id="ms-contents-page">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        
+
+    </body>
+
