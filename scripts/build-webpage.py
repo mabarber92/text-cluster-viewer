@@ -42,11 +42,11 @@ if __name__ == "__main__":
     corpus_base_path = "D:/OpenITI Corpus/OpenITI-pri-data_v7/"
     meta_path = "D:/Corpus Stats/2023/OpenITI_metadata_2022-2-7.csv"
     cluster_path = "D:/Corpus Stats/2023/v7-clusters/minified_clusters_pre-1000AH_under500.csv"
-    output_path = "../0310Tabari.Tarikh.Khandaq/"
+    output_path = "../0310Tabari.Tarikh.Farewell-Pilgrimage/"
     main_text = "0310Tabari.Tarikh"
-    title = "0310Tabari.Tarikh.Khandaq<br>Clusters-Version-2022.2.7"
-    start_ms = 937
-    end_ms = 950
+    title = "0310Tabari.Tarikh.Farewell-Pilgrimage<br>Clusters-Version-2022.2.7"
+    start_ms = 1119
+    end_ms = 1122
 
     build_webpage(cluster_path, meta_path, main_text, corpus_base_path, output_path, pri_only_corpus=True, page_title=title, start_ms = start_ms, end_ms= end_ms)
 
