@@ -42,9 +42,9 @@ if __name__ == "__main__":
     corpus_base_path = "D:/OpenITI Corpus/OpenITI-pri-data_v7/"
     meta_path = "D:/Corpus Stats/2023/OpenITI_metadata_2022-2-7.csv"
     cluster_path = "D:/Corpus Stats/2023/v7-clusters/minified_clusters_pre-1000AH_under500.csv"
-    output_path = "../0310Tabari.Tarikh.history-of-yemen/"
+    output_path = "../0310Tabari.Tarikh.history-of-yemen-2/"
     main_text = "0310Tabari.Tarikh"
-    title = "0310Tabari.Tarikh.history-of-yemen<br>Clusters-Version-2022.2.7"
+    title = "0310Tabari.Tarikh.history-of-yemen-2<br>Clusters-Version-2022.2.7"
     start_ms = 575
     end_ms = 618
 

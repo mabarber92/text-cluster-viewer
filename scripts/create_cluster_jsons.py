@@ -152,7 +152,7 @@ def create_cluster_jsons(cluster_path, meta_path, main_book_uri, corpus_base_pat
         os.mkdir(output_path)
 
     # Fetch the clusters
-    cluster_df = clusterDf(cluster_path, meta_path, drop_strings=drop_strings, cluster_cap = 100, max_date=1000).cluster_df
+    cluster_df = clusterDf(cluster_path, meta_path, drop_strings=drop_strings, cluster_cap = 500, max_date=1000).cluster_df
     
     # Get a fitered df for the main text
     main_clusters_df = cluster_df[cluster_df["book"] == main_book_uri]
