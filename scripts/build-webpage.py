@@ -49,9 +49,9 @@ if __name__ == "__main__":
     # start_ms = 575
     # end_ms = 618
 
-    list_ms = pd.read_csv("/data_in/Khitat_quotations_Jawwani.csv")["ms"].to_list()
+    list_ms = pd.read_csv("./data_in/Khitat_quotations_Jawwani.csv")["MS"].to_list()
 
-    build_webpage(cluster_path, meta_path, main_text, corpus_base_path, output_path, pri_only_corpus=True, page_title=title, list_ms=list_ms 
+    build_webpage(cluster_path, meta_path, main_text, corpus_base_path, output_path, page_title=title, list_ms=list_ms 
     )
 
 

@@ -200,19 +200,28 @@ def create_cluster_jsons(cluster_path, meta_path, main_book_uri, corpus_base_pat
     print(list_ms)
     
     # Calculate how many loops needed to achieve specified ms_per_json
-    iter_count = int(ceil(len(list_ms)/ms_per_json))
+    iter_count = int(ceil(len(list_ms)/ms_per_json))    
     current_pos = 0
+    total_items = len(list_ms) -1
     # Loop through segments of the list according to calculated no of loops
-    for i in tqdm(range(1, iter_count)):
+    for i in tqdm(range(0, iter_count)):
         
         end_pos = current_pos+ms_per_json
-        # Check the current index position is not longer than the list
-        if len(list_ms)-1 > end_pos:
+        # Check the current index position is not longer than the list and then if current position is not beyond the list
+        if total_items < end_pos:
             end_pos = -1
+            if total_items < current_pos:
+                continue
+
+        if total_items == current_pos:
+            cluster_json_path = "./{}_clusters.json".format(list_ms[end_pos])
+            subset_in = list_ms[end_pos]    
+        else:
+            cluster_json_path = "./{}_{}_clusters.json".format(list_ms[current_pos], list_ms[end_pos])
+            subset_in = list_ms[current_pos:end_pos]
         
-        cluster_json_path = "./{}_{}_clusters.json".format(list_ms[current_pos], list_ms[end_pos])
         clusters_out = []
-        for x in list_ms[current_pos:end_pos]:
+        for x in subset_in:
             
             filtered_clusters = main_clusters_df[main_clusters_df["seq"]==x].to_dict("records")
 
@@ -268,11 +277,11 @@ def create_cluster_jsons(cluster_path, meta_path, main_book_uri, corpus_base_pat
                         }
             
             main_ms_list.append(ms_dict)
-            current_pos = current_pos + ms_per_json
+            
             # clusters_dict = {"ms": x,
             #                 "cls": clusters_for_out}
             # clusters_out.append(clusters_dict)
-        
+        current_pos = current_pos + ms_per_json + 1
         json_path = os.path.join(output_path, cluster_json_path)
         with open(json_path, "w", encoding="utf-8-sig") as f:
             f.write(json.dumps(clusters_out, indent=1))
