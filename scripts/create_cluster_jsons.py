@@ -6,6 +6,7 @@ import json
 from tqdm import tqdm
 from openiti.helper.funcs import text_cleaner
 import sys
+from math import ceil
 
 def tag_ms(clusters, ms_section, safe_tags="###\s\|+\s|\n#\s|###\s\|+\s|PageV\d+P\d+|~~|\n|%~%", tags = None):
     """The function that handles tagging the clusters into an individual milestone
@@ -145,7 +146,7 @@ def mARkdown_to_html(text, mark_cls = True):
     # return the text
     return text
 
-def create_cluster_jsons(cluster_path, meta_path, main_book_uri, corpus_base_path, output_path, pri_only_corpus=False, drop_strings=False, ms_per_json = 5, start_ms = 1, end_ms = None):
+def create_cluster_jsons(cluster_path, meta_path, main_book_uri, corpus_base_path, output_path, pri_only_corpus=False, drop_strings=False, ms_per_json = 5, start_ms = 1, end_ms = None, list_ms=None):
 
     # If needed build output directory
     if not os.path.exists(output_path):
@@ -191,16 +192,23 @@ def create_cluster_jsons(cluster_path, meta_path, main_book_uri, corpus_base_pat
     if end_ms is None:
         end_ms = ms_count
 
+    if list_ms is None:
+        list_ms = (range(start_ms, end_ms))
 
     # Loop through the milestones up to total number in book (slicing the output according to ms_per_json variable) and build the jsons by looking up the clusters in clusters_df
     # Need to add the mapping component to map in the clusters into the text
-    print(start_ms)
-    print(end_ms)
+    print(list_ms)
+    
+    # Calculate how many loops needed to achieve specified ms_per_json
+    iter_count = int(ceil(len(list_ms)/ms_per_json))
 
-    for i in tqdm(range(start_ms, end_ms, ms_per_json)):
-        cluster_json_path = "./{}_{}_clusters.json".format(i, i+ms_per_json)
+    # Loop through segments of the list according to calculated no of loops
+    for i in tqdm(range(1, iter_count)):
+        pos_start = list_ms[i]
+        pos_end = list_ms[i+ms_per_json]
+        cluster_json_path = "./{}_{}_clusters.json".format(pos_start, pos_end)
         clusters_out = []
-        for x in range(i, i+ms_per_json):
+        for x in list_ms[i:i+ms_per_json]:
             
             filtered_clusters = main_clusters_df[main_clusters_df["seq"]==x].to_dict("records")
 

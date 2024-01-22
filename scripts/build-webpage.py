@@ -3,7 +3,7 @@ import os
 import re
 import shutil
 
-def build_webpage(cluster_path, meta_path, main_book_uri, corpus_base_path, output_path, pri_only_corpus=False, ms_per_json = 5, start_ms = 1, end_ms = None, page_title=None, viewer_template_folder = "../templates/"):
+def build_webpage(cluster_path, meta_path, main_book_uri, corpus_base_path, output_path, pri_only_corpus=False, ms_per_json = 5, start_ms = 1, end_ms = None, list_ms=None, page_title=None, viewer_template_folder = "../templates/"):
 
     # Create output directory
     if not os.path.exists(output_path):
@@ -34,7 +34,7 @@ def build_webpage(cluster_path, meta_path, main_book_uri, corpus_base_path, outp
     print("Created html page")
 
     # Run the json compiler in the same directory
-    create_cluster_jsons(cluster_path, meta_path, main_book_uri, corpus_base_path, output_path, pri_only_corpus=pri_only_corpus, ms_per_json = ms_per_json, start_ms = start_ms, end_ms = end_ms)
+    create_cluster_jsons(cluster_path, meta_path, main_book_uri, corpus_base_path, output_path, pri_only_corpus=pri_only_corpus, ms_per_json = ms_per_json, start_ms = start_ms, end_ms = end_ms, list_ms=list_ms)
 
     print("Success")
 
