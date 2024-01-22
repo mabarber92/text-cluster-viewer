@@ -45,11 +45,11 @@ if __name__ == "__main__":
     cluster_path = "D:/Corpus Stats/2023/v8-clusters/minified_clusters_pre-1000AH_under500.csv"
     output_path = "../0845Maqrizi.Mawaciz.Jawwani-quotes/"
     main_text = "0845Maqrizi.Mawaciz"
-    title = "0845Maqrizi.Mawaciz.Jawwani-quotes<br>Clusters-Version-2022.2.7"
+    title = "0845Maqrizi.Mawaciz.Jawwani-quotes<br>Clusters-Version-2023.1.8"
     # start_ms = 575
     # end_ms = 618
 
-    list_ms = pd.read_csv("./data_in/Khitat_quotations_Jawwani.csv")["MS"].to_list()
+    list_ms = pd.read_csv("./data_in/0845Maqrizi.Mawaciz.Shamela0011566-ara1.csv")["ms"].to_list()
 
     build_webpage(cluster_path, meta_path, main_text, corpus_base_path, output_path, page_title=title, list_ms=list_ms 
     )
