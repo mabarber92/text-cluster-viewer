@@ -201,14 +201,18 @@ def create_cluster_jsons(cluster_path, meta_path, main_book_uri, corpus_base_pat
     
     # Calculate how many loops needed to achieve specified ms_per_json
     iter_count = int(ceil(len(list_ms)/ms_per_json))
-
+    current_pos = 0
     # Loop through segments of the list according to calculated no of loops
     for i in tqdm(range(1, iter_count)):
-        pos_start = list_ms[i]
-        pos_end = list_ms[i+ms_per_json]
-        cluster_json_path = "./{}_{}_clusters.json".format(pos_start, pos_end)
+        
+        end_pos = current_pos+ms_per_json
+        # Check the current index position is not longer than the list
+        if len(list_ms)-1 > end_pos:
+            end_pos = -1
+        
+        cluster_json_path = "./{}_{}_clusters.json".format(list_ms[current_pos], list_ms[end_pos])
         clusters_out = []
-        for x in list_ms[i:i+ms_per_json]:
+        for x in list_ms[current_pos:end_pos]:
             
             filtered_clusters = main_clusters_df[main_clusters_df["seq"]==x].to_dict("records")
 
@@ -264,7 +268,7 @@ def create_cluster_jsons(cluster_path, meta_path, main_book_uri, corpus_base_pat
                         }
             
             main_ms_list.append(ms_dict)
-
+            current_pos = current_pos + ms_per_json
             # clusters_dict = {"ms": x,
             #                 "cls": clusters_for_out}
             # clusters_out.append(clusters_dict)
