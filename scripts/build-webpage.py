@@ -42,16 +42,16 @@ def build_webpage(cluster_path, meta_path, main_book_uri, corpus_base_path, outp
 if __name__ == "__main__":
     corpus_base_path = "D:/OpenITI Corpus/corpus_2023_1_8/"
     meta_path = "D:/Corpus Stats/2023/OpenITI_metadata_2023-1-8.csv"
-    cluster_path = "D:/Corpus Stats/2023/v8-clusters/minified_clusters_pre-1000AH_under500.csv"
-    output_path = "../0845Maqrizi.Mawaciz.Fatimid-sections/"
-    main_text = "0845Maqrizi.Mawaciz"
-    title = "0845Maqrizi.Mawaciz.Fatimid-sections<br>Clusters-Version-2023.1.8"
-    start_ms = 792
-    end_ms = 1115
+    cluster_path = "D:/Corpus Stats/2023/v8-clusters/minified_clusters_pre-1000AH_under500_2.csv"
+    output_path = "../0375AnonymousTranslator.TarikhCalamUrusiyus/"
+    main_text = "0375AnonymousTranslator.TarikhCalamUrusiyus"
+    title = "0375AnonymousTranslator.TarikhCalamUrusiyus<br>Clusters-Version-2023.1.8"
+    # start_ms = 792
+    # end_ms = 1115
 
     # list_ms = pd.read_csv("./data_in/0845Maqrizi.Mawaciz.Shamela0011566-ara1.csv")["ms"].to_list()
 
-    build_webpage(cluster_path, meta_path, main_text, corpus_base_path, output_path, page_title=title, start_ms = start_ms, end_ms = end_ms, ms_per_json = 10
+    build_webpage(cluster_path, meta_path, main_text, corpus_base_path, output_path, page_title=title, ms_per_json = 10
     )
 
 
