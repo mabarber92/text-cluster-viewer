@@ -43,9 +43,9 @@ if __name__ == "__main__":
     corpus_base_path = "D:/OpenITI Corpus/corpus_2023_1_8/"
     meta_path = "D:/Corpus Stats/2023/OpenITI_metadata_2023-1-8.csv"
     cluster_path = "D:/Corpus Stats/2023/v8-clusters/minified_clusters_pre-1000AH_under500_2.csv"
-    output_path = "../0375AnonymousTranslator.TarikhCalamUrusiyus/"
+    output_path = "../0375AnonymousTranslator.TarikhCalamUrusiyus2/"
     main_text = "0375AnonymousTranslator.TarikhCalamUrusiyus"
-    title = "0375AnonymousTranslator.TarikhCalamUrusiyus<br>Clusters-Version-2023.1.8"
+    title = "0375AnonymousTranslator.TarikhCalamUrusiyus2<br>Clusters-Version-2023.1.8"
     # start_ms = 792
     # end_ms = 1115
 

@@ -281,7 +281,7 @@ def create_cluster_jsons(cluster_path, meta_path, main_book_uri, corpus_base_pat
             # clusters_dict = {"ms": x,
             #                 "cls": clusters_for_out}
             # clusters_out.append(clusters_dict)
-        current_pos = current_pos + ms_per_json + 1
+        current_pos = current_pos + ms_per_json
         json_path = os.path.join(output_path, cluster_json_path)
         with open(json_path, "w", encoding="utf-8-sig") as f:
             f.write(json.dumps(clusters_out, indent=1))
