@@ -209,7 +209,7 @@ def create_cluster_jsons(cluster_path, meta_path, main_book_uri, corpus_base_pat
         end_pos = current_pos+ms_per_json
         # Check the current index position is not longer than the list and then if current position is not beyond the list
         if total_items < end_pos:
-            end_pos = -1
+            end_pos = None
             if total_items < current_pos:
                 continue
 
@@ -217,8 +217,12 @@ def create_cluster_jsons(cluster_path, meta_path, main_book_uri, corpus_base_pat
             cluster_json_path = "./{}_clusters.json".format(list_ms[end_pos])
             subset_in = list_ms[end_pos]    
         else:
-            cluster_json_path = "./{}_{}_clusters.json".format(list_ms[current_pos], list_ms[end_pos])
-            subset_in = list_ms[current_pos:end_pos]
+            if end_pos is None:
+                cluster_json_path = "./{}_{}_clusters.json".format(list_ms[current_pos], list_ms[-1])
+                subset_in = list_ms[current_pos:]
+            else:
+                cluster_json_path = "./{}_{}_clusters.json".format(list_ms[current_pos], list_ms[end_pos])
+                subset_in = list_ms[current_pos:end_pos]
         
         clusters_out = []
         for x in subset_in:
