@@ -1,0 +1,87 @@
+.scrollDiv {
+    max-height: 65vh;
+    overflow: auto;
+    font-size: 1.5em !important;
+    color: #000 !important;
+    font-family: Amiri !important;
+    direction: rtl;
+}
+
+.bookBox {
+    max-height: 12vh;
+    overflow: auto;
+}
+
+.markdownHeader {
+    font-size: 1.5em;
+}
+
+mark.markHead {                
+    background-color: rgb(172, 114, 6); 
+    color: rgb(247, 244, 244);
+    padding: 0;
+    display: inline-block;
+    font-size: 35px;
+}
+
+mark.ms {
+    background-color: rgb(0, 60, 255);
+    color: rgb(247, 244, 244);
+    padding: 0;
+    display: inline-block;    
+    }
+
+mark.pageno {
+    background-color: rgb(96, 116, 182);
+    padding: 0;
+    display: inline-block;
+    }
+
+mark.a0 {
+    color: black;
+    padding: 5px;
+    background: greenyellow;
+    padding: 0;
+    display: inline-block;
+}
+
+mark.clusterStart {
+    background: lightseagreen;
+    padding: 0;
+    display: inline-block;
+}
+
+mark.clusterEnd {
+    background: lightcoral;
+}
+
+mark.poetryMark {
+    background: lightblue;
+    padding: 0;
+    display: inline-block;
+}
+
+
+.rtl-input {
+    direction: rtl;
+}
+
+.logo-image {
+    max-width: 25%;
+}
+
+.bi {
+    font-size: 22px;
+}
+
+.bi.bi-1-square {
+    font-size: 15px;
+}
+
+.bi.bi-2-square {
+    font-size: 15px;
+}
+
+.bi.bi-arrows-angle-expand {
+    font-size: 17px
+}
